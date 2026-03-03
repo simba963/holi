@@ -5,21 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ಹೋಳಿ ಹಬ್ಬದ ಶುಭಾಶಯಗಳು</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;700&display=swap" rel="stylesheet">
-
 <style>
 body{
     margin:0;
     overflow:hidden;
-    font-family:'Noto Sans Kannada', sans-serif;
-    background: linear-gradient(45deg,#ff0080,#ff8c00,#40e0d0,#ff0080);
-    background-size:400% 400%;
-    animation:gradient 12s ease infinite;
+    font-family: "Noto Sans Kannada", sans-serif;
     text-align:center;
     color:white;
+    background: linear-gradient(45deg,#ff0080,#ff8c00,#40e0d0,#ff0080);
+    background-size:400% 400%;
+    animation:gradientBG 12s ease infinite;
 }
 
-@keyframes gradient{
+@keyframes gradientBG{
     0%{background-position:0% 50%;}
     50%{background-position:100% 50%;}
     100%{background-position:0% 50%;}
@@ -27,27 +25,44 @@ body{
 
 .container{
     position:absolute;
-    top:15%;
+    top:10%;
     width:100%;
     z-index:10;
 }
 
 h1{
-    font-size:38px;
+    font-size:36px;
     margin-bottom:10px;
-    animation:float 2s infinite ease-in-out;
-}
-
-@keyframes float{
-    0%,100%{transform:translateY(0);}
-    50%{transform:translateY(-10px);}
 }
 
 #sender{
     font-size:20px;
+    margin-bottom:15px;
     font-weight:bold;
-    color:#fff200;
+    color:#ffff00;
 }
+
+input{
+    padding:10px;
+    border-radius:25px;
+    border:none;
+    width:220px;
+    text-align:center;
+    font-size:14px;
+}
+
+button{
+    margin-top:10px;
+    padding:10px 20px;
+    border:none;
+    border-radius:25px;
+    font-size:14px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.shareBtn{background:white;color:#ff0080;}
+.confettiBtn{background:#ffff00;color:black;}
 
 canvas{
     position:absolute;
@@ -62,16 +77,23 @@ canvas{
 <div class="container">
     <h1>🌈 ಹೋಳಿ ಹಬ್ಬದ ಶುಭಾಶಯಗಳು 🎨</h1>
     <div id="sender"></div>
+
+    <input type="text" id="nameInput" placeholder="ನಿಮ್ಮ ಹೆಸರು ನಮೂದಿಸಿ">
+    <br>
+    <button class="shareBtn" onclick="shareWhatsApp()">📲 ವಾಟ್ಸಾಪ್ ನಲ್ಲಿ ಹಂಚಿಕೊಳ್ಳಿ</button>
+    <br>
+    <button class="confettiBtn" onclick="megaConfetti()">💥 ಬಣ್ಣ ಸುರಿಸಿ</button>
 </div>
 
 <canvas id="canvas"></canvas>
 
 <script>
-/* ===== ಕನ್ನಡ ಹೆಸರು URL ನಿಂದ ಪಡೆಯುವುದು ===== */
+
+/* ===== URL Name ===== */
 var params = new URLSearchParams(window.location.search);
 var name = params.get("name") || "ನಿಮ್ಮ ಸ್ನೇಹಿತ";
 document.getElementById("sender").innerHTML =
-    name + " ಅವರಿಂದ ಹೋಳಿ ಹಬ್ಬದ ಹಾರ್ದಿಕ ಶುಭಾಶಯಗಳು!";
+name + " ಅವರಿಂದ ಹೋಳಿ ಹಬ್ಬದ ಹಾರ್ದಿಕ ಶುಭಾಶಯಗಳು!";
 
 /* ===== Canvas Setup ===== */
 var canvas = document.getElementById("canvas");
@@ -84,7 +106,7 @@ function resize(){
 resize();
 window.addEventListener("resize", resize);
 
-/* ===== Random Color ===== */
+/* ===== Colors ===== */
 function randomColor(){
     var colors=["#ff0080","#ffcc00","#00ffcc",
                 "#ff3300","#6600ff","#00ff00",
@@ -92,37 +114,54 @@ function randomColor(){
     return colors[Math.floor(Math.random()*colors.length)];
 }
 
-/* ===== Multicolor Fountain Effect ===== */
+/* ===== Particle Engine ===== */
+var particles=[];
+
+function createParticle(x,y,vx,vy,size,life){
+    particles.push({
+        x:x,
+        y:y,
+        vx:vx,
+        vy:vy,
+        size:size,
+        color:randomColor(),
+        life:life
+    });
+}
+
+/* ===== Fountain ===== */
 function fountain(x,y){
-    for(var i=0;i<40;i++){
-        particles.push({
-            x:x,
-            y:y,
-            radius:3+Math.random()*4,
-            color:randomColor(),
-            vx:(Math.random()-0.5)*6,
-            vy:(Math.random()-1.5)*6,
-            life:60
-        });
+    for(var i=0;i<50;i++){
+        createParticle(
+            x,y,
+            (Math.random()-0.5)*6,
+            (Math.random()-1.5)*6,
+            4+Math.random()*4,
+            60
+        );
     }
 }
 
 /* ===== Rainbow Trail ===== */
 function trail(x,y){
-    particles.push({
-        x:x,
-        y:y,
-        radius:4,
-        color:randomColor(),
-        vx:0,
-        vy:0,
-        life:30
-    });
+    createParticle(x,y,0,0,4,30);
 }
 
-/* ===== Particle Engine ===== */
-var particles=[];
+/* ===== Mega Confetti Button ===== */
+function megaConfetti(){
+    for(var i=0;i<300;i++){
+        createParticle(
+            Math.random()*canvas.width,
+            Math.random()*canvas.height,
+            (Math.random()-0.5)*8,
+            (Math.random()-1.5)*8,
+            5,
+            80
+        );
+    }
+}
 
+/* ===== Animation Loop ===== */
 function animate(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
@@ -130,13 +169,13 @@ function animate(){
         var p=particles[i];
 
         ctx.beginPath();
-        ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+        ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
         ctx.fillStyle=p.color;
         ctx.fill();
 
         p.x+=p.vx;
         p.y+=p.vy;
-        p.vy+=0.1; // gravity
+        p.vy+=0.1;
         p.life--;
 
         if(p.life<=0){
@@ -144,35 +183,50 @@ function animate(){
             i--;
         }
     }
+
     requestAnimationFrame(animate);
 }
 animate();
 
-/* ===== Tap → Fountain ===== */
-function handleTap(e){
-    var rect = canvas.getBoundingClientRect();
-    var x = (e.touches?e.touches[0].clientX:e.clientX)-rect.left;
-    var y = (e.touches?e.touches[0].clientY:e.clientY)-rect.top;
-    fountain(x,y);
-}
+/* ===== Tap Fountain ===== */
+canvas.addEventListener("click",function(e){
+    fountain(e.clientX,e.clientY);
+});
 
-/* ===== Drag → Rainbow Trail ===== */
-function handleMove(e){
-    var rect = canvas.getBoundingClientRect();
-    var x = (e.touches?e.touches[0].clientX:e.clientX)-rect.left;
-    var y = (e.touches?e.touches[0].clientY:e.clientY)-rect.top;
-    trail(x,y);
-}
-
-/* Desktop */
-canvas.addEventListener("click", handleTap);
-canvas.addEventListener("mousemove", function(e){
-    if(e.buttons===1){ handleMove(e); }
+/* ===== Drag Trail ===== */
+canvas.addEventListener("mousemove",function(e){
+    if(e.buttons===1){
+        trail(e.clientX,e.clientY);
+    }
 });
 
 /* Mobile */
-canvas.addEventListener("touchstart", handleTap);
-canvas.addEventListener("touchmove", handleMove);
+canvas.addEventListener("touchstart",function(e){
+    var t=e.touches[0];
+    fountain(t.clientX,t.clientY);
+});
+canvas.addEventListener("touchmove",function(e){
+    var t=e.touches[0];
+    trail(t.clientX,t.clientY);
+});
+
+/* ===== WhatsApp Share with Name ===== */
+function shareWhatsApp(){
+    var entered=document.getElementById("nameInput").value.trim();
+    if(entered===""){
+        alert("ದಯವಿಟ್ಟು ನಿಮ್ಮ ಹೆಸರು ನಮೂದಿಸಿ");
+        return;
+    }
+
+    var base=window.location.origin+window.location.pathname;
+    var newUrl=base+"?name="+encodeURIComponent(entered);
+
+    var msg="🌈 ಹೋಳಿ ಹಬ್ಬದ ಶುಭಾಶಯಗಳು 🎨\n"
+            +entered+" ಅವರಿಂದ ವಿಶೇಷ ಶುಭಾಶಯಗಳು!\n"
+            +newUrl;
+
+    window.open("https://wa.me/?text="+encodeURIComponent(msg));
+}
 
 </script>
 

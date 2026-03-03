@@ -12,11 +12,11 @@ body {
     margin: 0;
     font-family: 'Poppins', sans-serif;
     text-align: center;
-    background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0, #ff0080);
-    background-size: 400% 400%;
-    animation: gradient 8s ease infinite;
     overflow: hidden;
     color: white;
+    background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0, #ff0080);
+    background-size: 400% 400%;
+    animation: gradient 10s ease infinite;
 }
 
 @keyframes gradient {
@@ -27,16 +27,17 @@ body {
 
 .container {
     position: relative;
-    top: 25vh;
+    top: 20vh;
     padding: 20px;
+    z-index: 2;
 }
 
 h1 {
-    font-size: 38px;
-    animation: bounce 2s infinite;
+    font-size: 40px;
+    animation: floatText 2s infinite ease-in-out;
 }
 
-@keyframes bounce {
+@keyframes floatText {
     0%,100% {transform: translateY(0);}
     50% {transform: translateY(-10px);}
 }
@@ -65,77 +66,148 @@ button:hover {
     transform: scale(1.1);
 }
 
-.splash {
+.particle {
     position: absolute;
-    width: 15px;
-    height: 15px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    animation: explode 1s ease-out forwards;
-}
-
-@keyframes explode {
-    0% { transform: scale(1); opacity: 1; }
-    100% { transform: scale(6); opacity: 0; }
+    pointer-events: none;
+    transition: all 1s ease-out;
 }
 </style>
 </head>
 
 <body>
 
-<audio autoplay loop>
+<audio id="bgMusic" loop>
   <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5b3eaa41b2.mp3?filename=happy-holi-110876.mp3" type="audio/mpeg">
 </audio>
 
 <div class="container">
     <h1>🌈 हैप्पी होली 🎨</h1>
     <div id="sender"></div>
-    <button onclick="confettiBlast()">💥 रंग बरसाओ</button>
-    <br>
+    <button onclick="confettiBlast()">💥 रंग बरसाओ</button><br>
     <button onclick="shareWhatsApp()">📲 WhatsApp पर शेयर करें</button>
 </div>
 
 <script>
-// Get name from URL
-const params = new URLSearchParams(window.location.search);
-const name = params.get("name") || "आपके दोस्त";
-document.getElementById("sender").innerText = name + " ki taraf se Happy Holi!";
-
-// Splash anywhere tap
-document.addEventListener("click", function(e) {
-    for (let i = 0; i < 15; i++) {
-        let splash = document.createElement("div");
-        splash.className = "splash";
-        splash.style.background = randomColor();
-        splash.style.left = e.pageX + "px";
-        splash.style.top = e.pageY + "px";
-        document.body.appendChild(splash);
-        setTimeout(() => splash.remove(), 1000);
-    }
+/* ===== Enable music on first interaction ===== */
+document.addEventListener("click", function startMusic(){
+    document.getElementById("bgMusic").play();
+    document.removeEventListener("click", startMusic);
 });
 
-// Confetti blast
-function confettiBlast() {
-    for (let i = 0; i < 200; i++) {
-        let confetti = document.createElement("div");
-        confetti.className = "splash";
-        confetti.style.background = randomColor();
-        confetti.style.left = Math.random() * window.innerWidth + "px";
-        confetti.style.top = Math.random() * window.innerHeight + "px";
-        document.body.appendChild(confetti);
-        setTimeout(() => confetti.remove(), 1500);
-    }
-}
+/* ===== Name from URL ===== */
+const params = new URLSearchParams(window.location.search);
+const name = params.get("name") || "आपके दोस्त";
+document.getElementById("sender").innerText =
+  name + " ki taraf se Happy Holi!";
 
+/* ===== Random Color ===== */
 function randomColor() {
-    const colors = ["#ff0080", "#ffcc00", "#00ffcc", "#ff3300", "#6600ff", "#00ff00"];
-    return colors[Math.floor(Math.random() * colors.length)];
+  const colors = [
+    "#ff0080","#ffcc00","#00ffcc",
+    "#ff3300","#6600ff","#00ff00",
+    "#ff1493","#00bfff","#ffa500"
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
 }
 
-// WhatsApp Share
+/* ===== Create Particle ===== */
+function createParticle(x, y, size=12, time=1000) {
+  let p = document.createElement("div");
+  p.className = "particle";
+  p.style.background = randomColor();
+  p.style.width = size + "px";
+  p.style.height = size + "px";
+  p.style.left = x + "px";
+  p.style.top = y + "px";
+  document.body.appendChild(p);
+
+  setTimeout(() => {
+    p.style.transform = "scale(4)";
+    p.style.opacity = "0";
+  }, 10);
+
+  setTimeout(() => p.remove(), time);
+}
+
+/* ===== Tap Splash ===== */
+document.addEventListener("click", function(e) {
+  for (let i = 0; i < 20; i++) {
+    createParticle(e.pageX, e.pageY);
+  }
+});
+
+/* ===== Confetti Blast ===== */
+function confettiBlast() {
+  for (let i = 0; i < 250; i++) {
+    createParticle(
+      Math.random() * window.innerWidth,
+      Math.random() * window.innerHeight,
+      10,
+      1500
+    );
+  }
+}
+
+/* ===== Hold Spray ===== */
+let sprayInterval;
+
+function startSpray(e) {
+  sprayInterval = setInterval(() => {
+    let x = e.touches ? e.touches[0].pageX : e.pageX;
+    let y = e.touches ? e.touches[0].pageY : e.pageY;
+    createParticle(
+      x + (Math.random()*30-15),
+      y + (Math.random()*30-15),
+      10,
+      800
+    );
+  }, 80);
+}
+
+function stopSpray() {
+  clearInterval(sprayInterval);
+}
+
+document.addEventListener("mousedown", startSpray);
+document.addEventListener("mouseup", stopSpray);
+document.addEventListener("touchstart", startSpray);
+document.addEventListener("touchend", stopSpray);
+
+/* ===== Rainbow Trail ===== */
+document.addEventListener("mousemove", followTrail);
+document.addEventListener("touchmove", followTrail);
+
+function followTrail(e) {
+  let x = e.touches ? e.touches[0].pageX : e.pageX;
+  let y = e.touches ? e.touches[0].pageY : e.pageY;
+
+  let trail = document.createElement("div");
+  trail.className = "particle";
+  trail.style.background = randomColor();
+  trail.style.width = "8px";
+  trail.style.height = "8px";
+  trail.style.left = x + "px";
+  trail.style.top = y + "px";
+  trail.style.boxShadow = "0 0 12px white";
+  trail.style.transition = "all 0.5s ease-out";
+  document.body.appendChild(trail);
+
+  setTimeout(() => {
+    trail.style.transform = "scale(2)";
+    trail.style.opacity = "0";
+  }, 10);
+
+  setTimeout(() => trail.remove(), 500);
+}
+
+/* ===== WhatsApp Share ===== */
 function shareWhatsApp() {
-    let url = window.location.href;
-    let text = "🌈 Happy Holi! 🎨 Check this out: " + url;
-    window.open("https://wa.me/?text=" + encodeURIComponent(text));
+  let url = window.location.href;
+  let text = "🌈 Happy Holi! 🎨 Check this out: " + url;
+  window.open("https://wa.me/?text=" + encodeURIComponent(text));
 }
 </script>
 

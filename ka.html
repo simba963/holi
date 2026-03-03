@@ -1,23 +1,29 @@
 <!DOCTYPE html>
-<html lang="kn">
+<html lang="kn" translate="no">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google" content="notranslate">
 <title>ಹೋಳಿ ಹಬ್ಬದ ಶುಭಾಶಯಗಳು</title>
 
 <style>
-body{
+html, body{
     margin:0;
+    padding:0;
+    height:100%;
     overflow:hidden;
-    font-family: "Noto Sans Kannada", sans-serif;
-    text-align:center;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     color:white;
-    background: linear-gradient(45deg,#ff0080,#ff8c00,#40e0d0,#ff0080);
-    background-size:400% 400%;
-    animation:gradientBG 12s ease infinite;
 }
 
-@keyframes gradientBG{
+/* Animated Background */
+body{
+    background: linear-gradient(-45deg,#ff0080,#ff8c00,#40e0d0,#ff00ff,#00ff88);
+    background-size:400% 400%;
+    animation:bgMove 12s ease infinite;
+}
+
+@keyframes bgMove{
     0%{background-position:0% 50%;}
     50%{background-position:100% 50%;}
     100%{background-position:0% 50%;}
@@ -25,13 +31,14 @@ body{
 
 .container{
     position:absolute;
-    top:10%;
+    top:8%;
     width:100%;
-    z-index:10;
+    text-align:center;
+    z-index:5;
 }
 
 h1{
-    font-size:36px;
+    font-size:34px;
     margin-bottom:10px;
 }
 
@@ -46,9 +53,10 @@ input{
     padding:10px;
     border-radius:25px;
     border:none;
-    width:220px;
+    width:230px;
     text-align:center;
     font-size:14px;
+    outline:none;
 }
 
 button{
@@ -61,18 +69,26 @@ button{
     cursor:pointer;
 }
 
-.shareBtn{background:white;color:#ff0080;}
-.confettiBtn{background:#ffff00;color:black;}
+.shareBtn{
+    background:white;
+    color:#ff0080;
+}
+
+.confettiBtn{
+    background:#ffff00;
+    color:black;
+}
 
 canvas{
     position:absolute;
     top:0;
     left:0;
+    pointer-events:auto;
 }
 </style>
 </head>
 
-<body>
+<body translate="no">
 
 <div class="container">
     <h1>🌈 ಹೋಳಿ ಹಬ್ಬದ ಶುಭಾಶಯಗಳು 🎨</h1>
@@ -89,10 +105,10 @@ canvas{
 
 <script>
 
-/* ===== URL Name ===== */
+/* ===== Force Kannada Name ===== */
 var params = new URLSearchParams(window.location.search);
 var name = params.get("name") || "ನಿಮ್ಮ ಸ್ನೇಹಿತ";
-document.getElementById("sender").innerHTML =
+document.getElementById("sender").innerText =
 name + " ಅವರಿಂದ ಹೋಳಿ ಹಬ್ಬದ ಹಾರ್ದಿಕ ಶುಭಾಶಯಗಳು!";
 
 /* ===== Canvas Setup ===== */
@@ -108,9 +124,11 @@ window.addEventListener("resize", resize);
 
 /* ===== Colors ===== */
 function randomColor(){
-    var colors=["#ff0080","#ffcc00","#00ffcc",
-                "#ff3300","#6600ff","#00ff00",
-                "#ff1493","#00bfff","#ffa500"];
+    var colors=[
+        "#ff0080","#ffcc00","#00ffcc",
+        "#ff3300","#6600ff","#00ff00",
+        "#ff1493","#00bfff","#ffa500"
+    ];
     return colors[Math.floor(Math.random()*colors.length)];
 }
 
@@ -142,12 +160,12 @@ function fountain(x,y){
     }
 }
 
-/* ===== Rainbow Trail ===== */
+/* ===== Trail ===== */
 function trail(x,y){
     createParticle(x,y,0,0,4,30);
 }
 
-/* ===== Mega Confetti Button ===== */
+/* ===== Mega Confetti ===== */
 function megaConfetti(){
     for(var i=0;i<300;i++){
         createParticle(
@@ -175,7 +193,7 @@ function animate(){
 
         p.x+=p.vx;
         p.y+=p.vy;
-        p.vy+=0.1;
+        p.vy+=0.15;
         p.life--;
 
         if(p.life<=0){
@@ -188,29 +206,29 @@ function animate(){
 }
 animate();
 
-/* ===== Tap Fountain ===== */
+/* ===== Desktop ===== */
 canvas.addEventListener("click",function(e){
     fountain(e.clientX,e.clientY);
 });
 
-/* ===== Drag Trail ===== */
 canvas.addEventListener("mousemove",function(e){
     if(e.buttons===1){
         trail(e.clientX,e.clientY);
     }
 });
 
-/* Mobile */
+/* ===== Mobile ===== */
 canvas.addEventListener("touchstart",function(e){
     var t=e.touches[0];
     fountain(t.clientX,t.clientY);
 });
+
 canvas.addEventListener("touchmove",function(e){
     var t=e.touches[0];
     trail(t.clientX,t.clientY);
 });
 
-/* ===== WhatsApp Share with Name ===== */
+/* ===== WhatsApp Share ===== */
 function shareWhatsApp(){
     var entered=document.getElementById("nameInput").value.trim();
     if(entered===""){
